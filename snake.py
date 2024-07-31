@@ -6,7 +6,7 @@ class Snake:
     
     def __init__(self):
         self.size = 18
-        self.body = [pygame.Rect(100,100, self.size, self.size)]
+        self.body = [pygame.Rect(200,200, self.size, self.size)]
         self.dir = pygame.K_d
         self.score = 0
         
@@ -38,8 +38,8 @@ class Snake:
 
     def check_collisions(self):
         head = self.body[0]
-        if head[0] > 800 or head[0] < 0 or \
-           head[1] > 600 or head[1] < 0:
+        if head[0] > 898 or head[0] < 92 or \
+           head[1] > 698 or head[1] < 92:
                 print("you lost")
                 return False
 
@@ -63,7 +63,7 @@ def drawsnake(screen, snake):
         pygame.draw.rect(screen, (0,0,0), it)
     
 def randompoint():
-    return pygame.Rect(random.randrange(0, 800, 18), random.randrange(0, 600, 18), 18, 18)
+    return pygame.Rect(random.randrange(105, 795, 18), random.randrange(105, 595, 18), 18, 18)
 
 def drawpoint(screen, point):
     pygame.draw.rect(screen, (176, 12,0), point)
@@ -72,27 +72,34 @@ def drawpoint(screen, point):
 def main():
     pygame.init()
     pygame.display.set_caption("SNAKE")
-    screen = pygame.display.set_mode((800, 600))
+    screen = pygame.display.set_mode((1000, 800))
     clock = pygame.time.Clock()
+    background = pygame.image.load('console_background.jpg')
     
     snake = Snake()
     point = randompoint()
     speed = 15
+    
 
     #menu
     menu = True
     while menu:
-        screen.fill((250, 238, 180))
+        #screen.fill((250, 238, 180))
+        
+        #background
+        screen.blit(background, (0,0))
+        pygame.draw.rect(screen, (250, 238, 180), (100,100, 800, 600))
 
-        pygame.draw.rect(screen, (117, 103, 75), (204, 203, 388, 50))
+        #title 
+        pygame.draw.rect(screen, (117, 103, 75), (293, 303, 388, 50))
 
         title = pygame.font.SysFont('Times New Roman', 50 ,bold = True)
         titlerender = title.render("SNAKE GAME", False, (255,255,255))
-        screen.blit(titlerender, (228, 200))
+        screen.blit(titlerender, (319, 300))
 
         ins = pygame.font.SysFont('Times New Roman', 20)
         instruction = ins.render("Press any key to start", False, (0,0,0))
-        screen.blit(instruction, (306, 300))
+        screen.blit(instruction, (400, 400))
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -106,7 +113,7 @@ def main():
     run = True
     while run:
         clock.tick(speed)
-        
+
         
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -129,25 +136,31 @@ def main():
                 speed = speed + 1
                 print("speed+++")
             
-     
-        screen.fill((250, 238, 180))
+        screen.blit(background, (0,0))     
+        pygame.draw.rect(screen, (250, 238, 180), (100,100,800,600))
         drawpoint(screen, point)
         drawsnake(screen, snake)
 
+        #score text
         text = pygame.font.SysFont('Times New Roman', 30)
-
         scorerender = text.render("Score: "+ str(snake.checkscore()), False, (0,0,0))
-        screen.blit(scorerender, (20, 20))
+        screen.blit(scorerender, (120, 110))
 
         pygame.display.update()
 
     iflost = True
     while iflost:
-        screen.fill((250, 238, 180))
+        #background
+        screen.blit(background, (0,0))
+        pygame.draw.rect(screen, (250, 238, 180), (100,100, 800, 600))
+        
+        #'you lost'
         loss = pygame.font.SysFont('Times New Roman', 35)
         lossrender = loss.render("You Lost!", False, (176, 12,0))
+        
+        print("lost at score: " + str(snake.checkscore()))
 
-        screen.blit(lossrender, (328, 250))
+        screen.blit(lossrender, (423, 300))
 
         pygame.display.update()
 
