@@ -1,6 +1,7 @@
 simple snake game made with python.
 
-move using W, A, S, D.
+Player 1 controls: W, A, S, D.
+Player 2 controls: Arrow up, Arrow down, Arrow left, Arrow right
 
 to run it you need to install the pygame library.
 
