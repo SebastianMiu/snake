@@ -5,7 +5,7 @@ import random
 class Snake:
     
     def __init__(self):
-        self.size = 18
+        self.size = 20
         self.body = [pygame.Rect(200,200, self.size, self.size)]
         self.dir = pygame.K_d
         self.score = 0
@@ -58,12 +58,53 @@ class Snake:
 
 
 
+class Snake2(Snake):
+    def __init__(self):
+        self.size = 20
+        self.body = [pygame.Rect(300,200, self.size, self.size)]
+        self.dir = pygame.K_RIGHT
+        self.score = 0
+
+    def move(self):
+        Xsnake, Ysnake = self.body[0].topleft
+
+        if self.dir == pygame.K_UP:
+            newhead = pygame.Rect(Xsnake, Ysnake - self.size, self.size, self.size)
+
+        elif  self.dir == pygame.K_DOWN:
+            newhead = pygame.Rect(Xsnake, Ysnake + self.size, self.size, self.size)
+
+        elif  self.dir == pygame.K_RIGHT:
+            newhead = pygame.Rect(Xsnake + self.size, Ysnake, self.size, self.size)
+
+        elif  self.dir == pygame.K_LEFT:
+            newhead = pygame.Rect(Xsnake - self.size, Ysnake, self.size, self.size)
+
+        self.body = [newhead] + self.body[:-1]
+
+
+        
+    def change_dir(self, dirr):
+        if (dirr==pygame.K_UP and self.dir != pygame.K_DOWN ) or \
+           (dirr==pygame.K_LEFT and self.dir != pygame.K_RIGHT ) or \
+           (dirr==pygame.K_DOWN and self.dir != pygame.K_UP ) or \
+           (dirr==pygame.K_RIGHT and self.dir != pygame.K_LEFT ):
+            self.dir = dirr    
+
+
+
+
+
 def drawsnake(screen, snake):
     for it in snake.body:
         pygame.draw.rect(screen, (0,0,0), it)
+        
+def drawsnake2(screen, snake):
+    for it in snake.body:
+        pygame.draw.rect(screen, (74,74,74), it)
     
 def randompoint():
-    return pygame.Rect(random.randrange(105, 795, 18), random.randrange(105, 595, 18), 18, 18)
+    return pygame.Rect(random.randrange(105, 795, 18), random.randrange(105, 595, 18), 20, 20)
 
 def drawpoint(screen, point):
     pygame.draw.rect(screen, (176, 12,0), point)
@@ -77,12 +118,14 @@ def main():
     background = pygame.image.load('console_background.jpg')
     
     snake = Snake()
+
     point = randompoint()
     speed = 15
     
 
     #menu
     menu = True
+    players = 0
     while menu:
         #screen.fill((250, 238, 180))
         
@@ -98,18 +141,26 @@ def main():
         screen.blit(titlerender, (319, 300))
 
         ins = pygame.font.SysFont('Times New Roman', 20)
-        instruction = ins.render("Press any key to start", False, (0,0,0))
-        screen.blit(instruction, (400, 400))
+        instruction = ins.render("Single player: press 1. Multi player: press 2", False, (0,0,0))
+        screen.blit(instruction, (315, 400))
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                menu = False
+                if(event.key == pygame.K_1): 
+                    players = 1 
+                    menu = False
+                elif(event.key == pygame.K_2):
+                    players = 2
+                    menu = False
             if event.type == pygame.QUIT:
                 pygame.quit()
 
         pygame.display.update()
+
                 
+    if players == 2: snake2 = Snake2()
     
+    #game
     run = True
     while run:
         clock.tick(speed)
@@ -120,14 +171,17 @@ def main():
                 run = False
             if event.type == pygame.KEYDOWN:
                 snake.change_dir(event.key)
+                if players == 2: snake2.change_dir(event.key)
 
 
         snake.move()
+        if players == 2: snake2.move()
 
 
-        if snake.check_collisions() == False:    
-
-            run = False
+        if snake.check_collisions() == False: run = False
+            
+        if players == 2:
+             if snake2.check_collisions() == False: run = False
         
         if snake.body[0].colliderect(point):
             snake.grow()
@@ -135,16 +189,30 @@ def main():
             if snake.checkscore() % 5 == 0 and snake.checkscore() != 0:
                 speed = speed + 1
                 print("speed+++")
+        
+        if players == 2:
             
+            if snake2.body[0].colliderect(point):
+                snake2.grow()
+                point = randompoint()
+                if snake2.checkscore() % 5 == 0 and snake2.checkscore() != 0:
+                    speed = speed + 1
+                    print("speed+++")
+                    
         screen.blit(background, (0,0))     
         pygame.draw.rect(screen, (250, 238, 180), (100,100,800,600))
         drawpoint(screen, point)
         drawsnake(screen, snake)
+        if players == 2: drawsnake2(screen, snake2)
 
         #score text
         text = pygame.font.SysFont('Times New Roman', 30)
-        scorerender = text.render("Score: "+ str(snake.checkscore()), False, (0,0,0))
+        scorerender = text.render("Player 1: "+ str(snake.checkscore()), False, (0,0,0))
         screen.blit(scorerender, (120, 110))
+
+        if players == 2:
+            scorerender = text.render("Player 2: "+ str(snake2.checkscore()), False, (0,0,0))
+            screen.blit(scorerender, (120, 160))
 
         pygame.display.update()
 
@@ -158,7 +226,8 @@ def main():
         loss = pygame.font.SysFont('Times New Roman', 35)
         lossrender = loss.render("You Lost!", False, (176, 12,0))
         
-        print("lost at score: " + str(snake.checkscore()))
+        print("1: lost at score: " + str(snake.checkscore()))
+        if players == 2: print("2: lost at score: " + str(snake2.checkscore()))        
 
         screen.blit(lossrender, (423, 300))
 
